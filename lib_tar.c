@@ -20,16 +20,21 @@ int check_archive(int tar_fd) {
     void * buff = (void*) malloc(sizeof(char)*512);
 
     int value= read(tar_fd,buff,512);
-    // faire une boucle while ici avec la conidtion du nombre de valeur lue
-    char * buff_c = (char *) buff;
+    while(value == 512 ){
 
-    if(buff_c[257] != 'u' || buff_c[258] != 's' || buff_c[259] != 't' || buff_c[260] != 'a' || buff_c[261] != 'r' || buff_c[262] != '\0') {return -1;}
-    if(buff_c[263] != '0' || buff_c[264] != '0') {return -2;}
+        char * buff_c = (char *) buff;
 
-    char sum_vc[8];
-    for(int i=0; i<8; i++){ sum_vc[i] = buff_c[i]; }
-    int sum_vi = atoi(sum_vc);
-    if (sum_vi != 512) { return -2;}
+        if(buff_c[257] != 'u' || buff_c[258] != 's' || buff_c[259] != 't' || buff_c[260] != 'a' || buff_c[261] != 'r' || buff_c[262] != '\0') {return -1;}
+        if(buff_c[263] != '0' || buff_c[264] != '0') {return -2;}
+
+        char sum_vc[8];
+        for(int i=0; i<8; i++){ sum_vc[i] = buff_c[i+148]; }
+        int sum_vi = atoi(sum_vc);
+        if (sum_vi < 487 || sum_vi > 521) { return -2;}
+        value= read(tar_fd,buff,512);
+        count++;
+    }
+    return count;
 
 }
 
