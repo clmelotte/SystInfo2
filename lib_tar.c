@@ -65,6 +65,7 @@ int is_dir(int tar_fd, char *path) {
 }
 
 /**
+ * moi
  * Checks whether an entry exists in the archive and is a file.
  *
  * @param tar_fd A file descriptor pointing to the start of a tar archive file.
@@ -74,10 +75,12 @@ int is_dir(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_file(int tar_fd, char *path) {
+    tar_header_t *header =(tar_header_t *) malloc(512);
     return 0;
 }
 
 /**
+ * moi
  * Checks whether an entry exists in the archive and is a symlink.
  *
  * @param tar_fd A file descriptor pointing to the start of a tar archive file.
@@ -91,6 +94,7 @@ int is_symlink(int tar_fd, char *path) {
 
 
 /**
+ * moi
  * Lists the entries at a given path in the archive.
  *
  * @param tar_fd A file descriptor pointing to the start of a tar archive file.
