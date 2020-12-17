@@ -48,6 +48,18 @@ int check_archive(int tar_fd) {
  *         any other value otherwise.
  */
 int exists(int tar_fd, char *path) {
+    int n = 512;
+    tar_header_t *header =(tar_header_t *) malloc(n);
+    int ret = read(tar_fd,header,n);
+    while(ret!=0){
+        if(strcmp(header->name,path)==0) {
+            return 1;
+        }
+        int size = (strtol(header->size,NULL,8)+511)/512;
+        for(int i=0;i<=size;i++) {
+            ret = read(tar_fd, header, n);
+        }
+    }
     return 0;
 }
 
@@ -61,6 +73,19 @@ int exists(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_dir(int tar_fd, char *path) {
+    int n = 512;
+    tar_header_t *header =(tar_header_t *) malloc(n);
+    int ret = read(tar_fd,header,n);
+    while(ret!=0){
+        if(strcmp(header->name,path)==0) {
+            if (header->typeflag == '5') { return 1; }
+            else { return 0; }
+        }
+        int size = (strtol(header->size,NULL,8)+511)/512;
+        for(int i=0;i<=size;i++) {
+            ret = read(tar_fd, header, n);
+        }
+    }
     return 0;
 }
 
@@ -75,7 +100,19 @@ int is_dir(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_file(int tar_fd, char *path) {
-    tar_header_t *header =(tar_header_t *) malloc(512);
+    int n = 512;
+    tar_header_t *header =(tar_header_t *) malloc(n);
+    int ret = read(tar_fd,header,n);
+    while(ret!=0){
+        if(strcmp(header->name,path)==0) {
+            if (header->typeflag == '0' || header->typeflag == '\0') { return 1; }
+            else { return 0; }
+        }
+        int size = (strtol(header->size,NULL,8)+511)/512;
+        for(int i=0;i<=size;i++) {
+            ret = read(tar_fd, header, n);
+        }
+    }
     return 0;
 }
 
@@ -89,6 +126,19 @@ int is_file(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_symlink(int tar_fd, char *path) {
+    int n = 512;
+    tar_header_t *header =(tar_header_t *) malloc(n);
+    int ret = read(tar_fd,header,n);
+    while(ret!=0){
+        if(strcmp(header->name,path)==0) {
+            if (header->typeflag == '2') { return 1; }
+            else { return 0; }
+        }
+        int size = (strtol(header->size,NULL,8)+511)/512;
+        for(int i=0;i<=size;i++) {
+            ret = read(tar_fd, header, n);
+        }
+    }
     return 0;
 }
 

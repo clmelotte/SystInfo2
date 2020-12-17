@@ -7,7 +7,9 @@
 #include "lib_tar.h"
 
 int main(int argc, char *argv[]) {
-    tar_header_t *header =(tar_header_t *) malloc(512);
-    printf("size of header : %lu \n", sizeof(header->name));
+    char *str="folder file";
+    char *sep=" ";
+    char *tok=strtok(str,sep);
+
 }
 
