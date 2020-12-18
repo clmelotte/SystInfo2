@@ -32,7 +32,25 @@ int main(int argc, char **argv) {
 
 
     lseek(fd,0,SEEK_SET);
-    char *path="ttest/";
+
+    /*
+    tar_header_t *header =(tar_header_t *) malloc(512);
+    char *path = "wibs";
+    int loc = is_symlink(fd, path);
+    printf("loc : %i\n",loc);
+    if(loc){
+        lseek(fd,(loc-1)*512,SEEK_SET);
+        read(fd,header,512);
+        printf("linkname : %s\n",header->linkname);
+        lseek(fd,0,SEEK_SET);
+    }
+    
+    char *string="folder/file";
+    char *slash= "/";
+    char *strst=strstr(string,slash);
+    printf("%i\n",strlen(strst)<=1);
+    */
+    char *path="wobs";
     char **entries = (char **) malloc(20*sizeof(char*));
     for(int i=0;i<20;i++){
         entries[i]=(char*) malloc(100);
@@ -43,7 +61,7 @@ int main(int argc, char **argv) {
     ret=list(fd,path,entries,no_entries);
     printf("retval list : %i\nlist no_entries : %li\n",ret, *no_entries);
     for(int i=0;i<ret;i++){
-        printf("entry nbr %i : %s\n",i,entries[i]);
+        printf("entry nbr %i : %s\n",i+1,entries[i]);
     }
 
 
