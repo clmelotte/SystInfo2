@@ -70,6 +70,9 @@ int check_archive(int tar_fd) {
  *         any other value otherwise.
  */
 int exists(int tar_fd, char *path){
+    lseek(tar_fd,0,SEEK_SET);
+
+
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
     int ret = read(tar_fd,header,n);
@@ -198,6 +201,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
     *no_entries=0;
 
     int n = 512;
+    char *slash= "/";
     tar_header_t *header =(tar_header_t *) malloc(n);
 
 
@@ -208,6 +212,9 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
         lseek(tar_fd,(loc-1)*n,SEEK_SET);
         read(tar_fd,header,n);
         strcpy(path2,header->linkname);
+        if(strstr(path2,slash)==NULL){
+            strcat(path2,slash);
+        }
         lseek(tar_fd,0,SEEK_SET);
     }
     else if(!is_dir(tar_fd,path2)){
@@ -222,8 +229,13 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
     while(ret!=0&&*no_entries<=entriesMax){
         if(strstr(header->name,path2)!=NULL) {
             if (strcmp(header->name,path2)!=0) {
-                strcpy(entries[*no_entries],header->name+strlen(path));
-                *no_entries=*no_entries+1;
+                char entry[100];
+                strcpy(entry,header->name+strlen(path2));
+                char *strst = strstr(entry,slash);
+                if (!(strst!=NULL&&strlen(strst)!=1)) {
+                    strcpy(entries[*no_entries], entry);
+                    *no_entries = *no_entries + 1;
+                }
             }
         }
         int size = (int) (strtol(header->size,NULL,8)+511)/512;
@@ -233,8 +245,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
     }
     free(header);
     free(path2);
-    if(*no_entries==0){return 0;}
-    else{return 1;}
+    return *no_entries;
 }
 
 /**
