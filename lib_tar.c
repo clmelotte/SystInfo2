@@ -34,25 +34,25 @@ int check_archive(int tar_fd) {
             else{break;}
         }
         if(out){break;}
-        count++;
 
         if (strcmp(header->magic, "ustar")!=0) {return -1;}
         if (header->version[0] != '0' || header->version[1] != '0') { return -2; }
 
         uint8_t *header_u8f = (uint8_t *) header;
-        uint8_t valsumchk = 0;
-        for (int i = 0; i < 8; i++) { valsumchk += (uint8_t) header->chksum[i]; }
 
-        uint8_t chksum_chk = 0;
-        for (int i = 0; i < 512; i++) { chksum_chk += header_u8f[i]; }
-        chksum_chk = chksum_chk - valsumchk;
-        int chksum_int = (int) strtol(header->chksum, NULL, 10);
-        if (chksum_int == chksum_chk) { return -3; }
+        int chksum_chk = 0;
+        for (int i = 0; i < 148; i++) {chksum_chk = chksum_chk + header_u8f[i];}
+        chksum_chk = chksum_chk + (32 * 8);
+        for (int i = 156; i < 500; i++) { chksum_chk = chksum_chk + header_u8f[i]; }
+
+        int chksum_int = (int) strtol(header->chksum, NULL, 8);
+        if (!(chksum_chk=chksum_int)) {return -3; }
 
         int size = (int) (strtol(header->size, NULL, 8) + 511) / 512;
         for (int i = 0; i <= size; i++) {
             ret = read(tar_fd, header, 512);
         }
+        count++;
     }
     return count;
 }
