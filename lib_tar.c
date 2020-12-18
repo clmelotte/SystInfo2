@@ -18,6 +18,7 @@
  */
 int check_archive(int tar_fd) {
 
+
     int count = 0;
 
     tar_header_t *header = (tar_header_t *) malloc(512);
@@ -32,7 +33,7 @@ int check_archive(int tar_fd) {
         }
         count++;
 
-        if (strcmp(header->magic, "ustar") == 0) { return -1; }
+        if (strcmp(header->magic, "ustar")) { return -1; }
         if (header->version[0] != '0' || header->version[1] != '0') { return -2; }
 
         uint8_t *header_u8f = (uint8_t *) header;
