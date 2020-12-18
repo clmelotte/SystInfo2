@@ -46,7 +46,7 @@ int check_archive(int tar_fd) {
         for (int i = 156; i < 500; i++) { chksum_chk = chksum_chk + header_u8f[i]; }
 
         int chksum_int = (int) strtol(header->chksum, NULL, 8);
-        if (!(chksum_chk==chksum_int)) {return -3; }
+        if (chksum_chk!=chksum_int) {return -3; }
 
         int size = (int) (strtol(header->size, NULL, 8) + 511) / 512;
         for (int i = 0; i <= size; i++) {
