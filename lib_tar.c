@@ -152,14 +152,16 @@ int is_symlink(int tar_fd, char *path) {
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
     int ret = read(tar_fd,header,n);
+    int readCount=1;
     while(ret!=0){
         if(strcmp(header->name,path)==0) {
-            if (header->typeflag == '2') { return 1; }
+            if (header->typeflag == '2') { return readCount;}
             else { return 0; }
         }
         int size = (int) (strtol(header->size,NULL,8)+511)/512;
         for(int i=0;i<=size;i++) {
             ret = read(tar_fd, header, n);
+            readCount++;
         }
     }
     return 0;
@@ -181,7 +183,44 @@ int is_symlink(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
-    return 0;
+    int entriesMax =*no_entries;
+    *no_entries=0;
+
+    int n = 512;
+    tar_header_t *header =(tar_header_t *) malloc(n);
+
+
+    char *path2=(char*) malloc(strlen(path)+1);
+    strcpy(path2,path);
+    int loc = is_symlink(tar_fd, path);
+    if(loc){
+        lseek(tar_fd,(loc*n)-1,SEEK_SET);
+        read(tar_fd,header,n);
+        strcpy(path2,header->linkname);
+        lseek(tar_fd,0,SEEK_SET);
+    }
+
+    else if(!is_dir(tar_fd,path)){
+        return 0;
+    }
+    lseek(tar_fd,0,SEEK_SET);
+
+
+    int ret = read(tar_fd,header,n);
+    while(ret!=0&&*no_entries<=entriesMax){
+        if(strstr(header->name,path2)!=NULL) {
+            if (strcmp(header->name,path2)!=0) {
+                strcpy(entries[*no_entries],header->name+strlen(path));
+                *no_entries=*no_entries+1;
+            }
+        }
+        int size = (int) (strtol(header->size,NULL,8)+511)/512;
+        for(int i=0;i<=size;i++) {
+            ret = read(tar_fd, header, n);
+        }
+    }
+    if(*no_entries==0){return 0;}
+    else{return 1;}
 }
 
 /**
