@@ -284,7 +284,7 @@ ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *
         lseek(tar_fd,0,SEEK_SET);
     }
 
-    int pos = is_file(tar_fd,path);
+    int pos = is_file(tar_fd,path2);
     if(!pos){ return -1;}
     int err=lseek(tar_fd,(pos-1)*n,SEEK_SET);
     //printf("err %d\n, errno = %d\n",err, errno);
