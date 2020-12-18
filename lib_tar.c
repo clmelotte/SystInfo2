@@ -82,6 +82,7 @@ int exists(int tar_fd, char *path){
             ret = read(tar_fd, header, n);
         }
     }
+    free(header);
     return 0;
 }
 
@@ -108,6 +109,7 @@ int is_dir(int tar_fd, char *path) {
             ret = read(tar_fd, header, n);
         }
     }
+    free(header);
     return 0;
 }
 
@@ -135,6 +137,7 @@ int is_file(int tar_fd, char *path) {
             ret = read(tar_fd, header, n);
         }
     }
+    free(header);
     return 0;
 }
 
@@ -163,6 +166,7 @@ int is_symlink(int tar_fd, char *path) {
             readCount++;
         }
     }
+    free(header);
     return 0;
 }
 
@@ -200,6 +204,8 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
     }
 
     else if(!is_dir(tar_fd,path)){
+        free(header);
+        free(path2);
         return 0;
     }
     lseek(tar_fd,0,SEEK_SET);
@@ -218,6 +224,8 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
             ret = read(tar_fd, header, n);
         }
     }
+    free(header);
+    free(path2);
     if(*no_entries==0){return 0;}
     else{return 1;}
 }
