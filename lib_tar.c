@@ -26,10 +26,10 @@ int check_archive(int tar_fd) {
     int ret = read(tar_fd, header, 512);
 
     int out=0;
-    while (ret != 0) {
-        for(int i=0; i<10; i++) {
+    while (ret == 512) {
+        for(int i=0; i<100; i++) {
             if(header->name[i]=='0' || header->name[i]=='\0'){
-                if(i == 9){out =1;}
+                if(i == 99){out =1;}
             }
             else{break;}
         }
@@ -50,7 +50,7 @@ int check_archive(int tar_fd) {
         for (int i = 0; i < 512; i++) { chksum_chk += header_u8f[i]; }
         chksum_chk = chksum_chk - valsumchk;
         int chksum_int = (int) strtol(header->chksum, NULL, 10);
-        if ((chksum_chk - 17) < chksum_int && chksum_int < (chksum_chk + 17)) { return -3; }
+        if (chksum_int == chksum_chk) { return -3; }
 
         int size = (int) (strtol(header->size, NULL, 8) + 511) / 512;
         for (int i = 0; i <= size; i++) {
