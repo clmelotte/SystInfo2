@@ -210,7 +210,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
         strcpy(path2,header->linkname);
         lseek(tar_fd,0,SEEK_SET);
     }
-    else if(!is_dir(tar_fd,path)){
+    else if(!is_dir(tar_fd,path2)){
         free(header);
         free(path2);
         return 0;
@@ -234,7 +234,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
     free(header);
     free(path2);
     if(*no_entries==0){return 0;}
-    else{return *no_entries;}
+    else{return 1;}
 }
 
 /**
