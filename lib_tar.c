@@ -127,14 +127,16 @@ int is_file(int tar_fd, char *path) {
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
     int ret = read(tar_fd,header,n);
+    int readCount=1;
     while(ret!=0){
         if(strcmp(header->name,path)==0) {
-            if (header->typeflag == '0' || header->typeflag == '\0') { return 1; }
+            if (header->typeflag == '0' || header->typeflag == '\0') { return readCount; }
             else { return 0; }
         }
         int size = (int) (strtol(header->size,NULL,8)+511)/512;
         for(int i=0;i<=size;i++) {
             ret = read(tar_fd, header, n);
+            readCount++;
         }
     }
     free(header);
