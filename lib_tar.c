@@ -96,6 +96,8 @@ int exists(int tar_fd, char *path){
  *         any other value otherwise.
  */
 int is_dir(int tar_fd, char *path) {
+    lseek(tar_fd,0,SEEK_SET);
+
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
     int ret = read(tar_fd,header,n);
@@ -124,6 +126,8 @@ int is_dir(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_file(int tar_fd, char *path) {
+    lseek(tar_fd,0,SEEK_SET);
+
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
     int ret = read(tar_fd,header,n);
@@ -153,6 +157,8 @@ int is_file(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_symlink(int tar_fd, char *path) {
+    lseek(tar_fd,0,SEEK_SET);
+
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
     int ret = read(tar_fd,header,n);
@@ -204,7 +210,6 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
         strcpy(path2,header->linkname);
         lseek(tar_fd,0,SEEK_SET);
     }
-
     else if(!is_dir(tar_fd,path)){
         free(header);
         free(path2);
@@ -229,7 +234,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
     free(header);
     free(path2);
     if(*no_entries==0){return 0;}
-    else{return 1;}
+    else{return *no_entries;}
 }
 
 /**

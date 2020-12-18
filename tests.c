@@ -39,7 +39,10 @@ int main(int argc, char **argv) {
     size_t *no_entries=&numEntries;
 
     ret=list(fd,path,entries,no_entries);
-    printf("retval list : %i\n",ret);
+    printf("retval list : %i\nlist no_entries : %i\n",ret, *no_entries);
+    for(int i=0;i<ret;i++){
+        printf("entry nbr %i : %s\n",i,entries[i]);
+    }
 
 
 
