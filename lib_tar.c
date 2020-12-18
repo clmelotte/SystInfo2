@@ -1,6 +1,7 @@
 #include "lib_tar.h"
 #include "stdlib.h"
 #include "string.h"
+#include "stdio.h"
 /**
  * Checks whether the archive is valid.
  *
@@ -24,16 +25,21 @@ int check_archive(int tar_fd) {
     tar_header_t *header = (tar_header_t *) malloc(512);
     int ret = read(tar_fd, header, 512);
 
+    int out=0;
     while (ret != 0) {
-        for(int i=0; i<100; i++) {
-            if(header->name[i]=='\0'){
-                if(i == 99){count--;}
+        for(int i=0; i<10; i++) {
+            if(header->name[i]=='0' || header->name[i]=='\0'){
+                if(i == 9){out =1;}
             }
             else{break;}
         }
+        if(out){break;}
         count++;
 
-        if (strcmp(header->magic, "ustar")) { return -1; }
+        printf("count %d\n", count);
+        if (strcmp(header->magic, "ustar")) {
+            printf("magic ==== %s and ret %d and name %s\n",header->magic, ret, header->name);
+            return -1;}
         if (header->version[0] != '0' || header->version[1] != '0') { return -2; }
 
         uint8_t *header_u8f = (uint8_t *) header;
