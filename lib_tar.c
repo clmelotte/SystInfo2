@@ -36,7 +36,6 @@ int check_archive(int tar_fd) {
         if(out){break;}
         count++;
 
-        printf("count %d\n", count);
         if (strcmp(header->magic, "ustar")!=0) {return -1;}
         if (header->version[0] != '0' || header->version[1] != '0') { return -2; }
 
