@@ -18,13 +18,18 @@
  */
 int check_archive(int tar_fd) {
 
-
     int count = 0;
 
     tar_header_t *header = (tar_header_t *) malloc(512);
     int ret = read(tar_fd, header, 512);
 
     while (ret != 0) {
+        for(int i=0; i<100; i++) {
+            if(header->name[i]=='\0'){
+                if(i == 99){count--;}
+            }
+            else{break;}
+        }
         count++;
 
         if (strcmp(header->magic, "ustar") == 0) { return -1; }
