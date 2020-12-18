@@ -286,7 +286,7 @@ ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *
 
     int pos = is_file(tar_fd,path);
     if(!pos){ return -1;}
-    int err=lseek(tar_fd,(pos-1)*n,SEEK_SET);
+    lseek(tar_fd,(pos-1)*n,SEEK_SET);
     //printf("err %d\n, errno = %d\n",err, errno);
     read(tar_fd,header,n);
     int size_of_file =(int) strtol(header->size,NULL,8);
