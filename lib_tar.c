@@ -249,6 +249,37 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
  *         a positive value if the file was partially read, representing the remaining bytes left to be read.
  *
  */
+
+// demander au tuteur confrmation qu'il n'y a pas de probleme pour dest (unit8)
 ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *len) {
-    return -1;
+
+    int n = 512;
+    tar_header_t *header =(tar_header_t *) malloc(n);
+    char *path2=(char*) malloc(strlen(path)+1);
+    strcpy(path2,path);
+    int loc = is_symlink(tar_fd, path);
+    if(loc){
+        lseek(tar_fd,(loc-1)*n,SEEK_SET);
+        read(tar_fd,header,n);
+        strcpy(path2,header->linkname);
+        lseek(tar_fd,0,SEEK_SET);
+    }
+
+    int pos = is_file(tar_fd,path2);
+    if(!pos){ return -1;}
+    lseek(tar_fd,(loc-1)*n,SEEK_SET);
+    read(tar_fd,header,n);
+    int size_of_file = strtol(header->size,NULL,8);
+    if(size_of_file<offset ){return -2;}
+    lseek(tar_fd,offset,SEEK_CUR);
+
+    int rest_of_file = size_of_file-offset;
+    int result;
+    if(*len<rest_of_file){result = rest_of_file-(*len);}
+    else{
+        result = 0;
+        *len = rest_of_file;
+    }
+    read(tar_fd,dest,*len);
+    return result;
 }
