@@ -197,7 +197,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
     strcpy(path2,path);
     int loc = is_symlink(tar_fd, path);
     if(loc){
-        lseek(tar_fd,(loc*n)-1,SEEK_SET);
+        lseek(tar_fd,(loc-1)*n,SEEK_SET);
         read(tar_fd,header,n);
         strcpy(path2,header->linkname);
         lseek(tar_fd,0,SEEK_SET);
@@ -248,5 +248,5 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
  *
  */
 ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *len) {
-    return 0;
+    return -1;
 }

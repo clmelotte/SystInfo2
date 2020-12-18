@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include "lib_tar.h"
 
@@ -26,6 +27,21 @@ int main(int argc, char **argv) {
 
     int ret = check_archive(fd);
     printf("check_archive returned ... %d\n", ret);
+
+
+    lseek(fd,0,SEEK_SET);
+    char *path="ttest/";
+    char **entries = (char **) malloc(20*sizeof(char*));
+    for(int i=0;i<20;i++){
+        entries[i]=(char*) malloc(100);
+    }
+    size_t numEntries=20;
+    size_t *no_entries=&numEntries;
+
+    ret=list(fd,path,entries,no_entries);
+    printf("retval list : %i\n",ret);
+
+
 
     return 0;
 }
