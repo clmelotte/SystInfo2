@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
         printf("linkname : %s\n",header->linkname);
         lseek(fd,0,SEEK_SET);
     }
-    /*
+    
     char *string="folder/file";
     char *slash= "/";
     char *strst=strstr(string,slash);
