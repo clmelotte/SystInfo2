@@ -1,5 +1,6 @@
 #include "lib_tar.h"
 #include "stdlib.h"
+#include "string.h"
 /**
  * Checks whether the archive is valid.
  *
@@ -16,27 +17,39 @@
  *         -3 if the archive contains a header with an invalid checksum value
  */
 int check_archive(int tar_fd) {
-    int count=0;
-    void * buff = (void*) malloc(sizeof(char)*512);
 
-    int value= read(tar_fd,buff,512);
-    while(value == 512 ){
 
-        char * buff_c = (char *) buff;
+    int count = 0;
 
-        if(buff_c[257] != 'u' || buff_c[258] != 's' || buff_c[259] != 't' || buff_c[260] != 'a' || buff_c[261] != 'r' || buff_c[262] != '\0') {return -1;}
-        if(buff_c[263] != '0' || buff_c[264] != '0') {return -2;}
+    tar_header_t *header = (tar_header_t *) malloc(512);
+    int ret = read(tar_fd, header, 512);
 
-        char sum_vc[8];
-        for(int i=0; i<8; i++){ sum_vc[i] = buff_c[i+148]; }
-        int sum_vi = atoi(sum_vc);
-        if (sum_vi < 487 || sum_vi > 521) { return -2;}
-        value= read(tar_fd,buff,512);
+    while (ret != 0) {
         count++;
+
+        if (strcmp(header->magic, "ustar") == 0) { return -1; }
+        if (header->version[0] != '0' || header->version[1] != '0') { return -2; }
+
+        uint8_t *header_u8f = (uint8_t *) header;
+        uint8_t valsumchk = 0;
+        for (int i = 0; i < 8; i++) { valsumchk += (uint8_t) header->chksum[i]; }
+
+        uint8_t chksum_chk = 0;
+        for (int i = 0; i < 512; i++) { chksum_chk += header_u8f[i]; }
+        chksum_chk = chksum_chk - valsumchk;
+        int chksum_int = (int) strtol(header->chksum, NULL, 10);
+        if ((chksum_chk - 17) < chksum_int && chksum_int < (chksum_chk + 17)) { return -3; }
+
+        int size = (int) (strtol(header->size, NULL, 8) + 511) / 512;
+        for (int i = 0; i <= size; i++) {
+            ret = read(tar_fd, header, 512);
+        }
     }
     return count;
-
 }
+
+
+
 
 /**
  * Checks whether an entry exists in the archive.
@@ -47,7 +60,7 @@ int check_archive(int tar_fd) {
  * @return zero if no entry at the given path exists in the archive,
  *         any other value otherwise.
  */
-int exists(int tar_fd, char *path) {
+int exists(int tar_fd, char *path){
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
     int ret = read(tar_fd,header,n);
@@ -55,7 +68,7 @@ int exists(int tar_fd, char *path) {
         if(strcmp(header->name,path)==0) {
             return 1;
         }
-        int size = (strtol(header->size,NULL,8)+511)/512;
+        int size = (int) (strtol(header->size,NULL,8)+511)/512;
         for(int i=0;i<=size;i++) {
             ret = read(tar_fd, header, n);
         }
@@ -81,7 +94,7 @@ int is_dir(int tar_fd, char *path) {
             if (header->typeflag == '5') { return 1; }
             else { return 0; }
         }
-        int size = (strtol(header->size,NULL,8)+511)/512;
+        int size = (int) (strtol(header->size,NULL,8)+511)/512;
         for(int i=0;i<=size;i++) {
             ret = read(tar_fd, header, n);
         }
@@ -108,7 +121,7 @@ int is_file(int tar_fd, char *path) {
             if (header->typeflag == '0' || header->typeflag == '\0') { return 1; }
             else { return 0; }
         }
-        int size = (strtol(header->size,NULL,8)+511)/512;
+        int size = (int) (strtol(header->size,NULL,8)+511)/512;
         for(int i=0;i<=size;i++) {
             ret = read(tar_fd, header, n);
         }
@@ -134,7 +147,7 @@ int is_symlink(int tar_fd, char *path) {
             if (header->typeflag == '2') { return 1; }
             else { return 0; }
         }
-        int size = (strtol(header->size,NULL,8)+511)/512;
+        int size = (int) (strtol(header->size,NULL,8)+511)/512;
         for(int i=0;i<=size;i++) {
             ret = read(tar_fd, header, n);
         }
