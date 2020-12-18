@@ -2,6 +2,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
+#include "errno.h"
 /**
  * Checks whether the archive is valid.
  *
@@ -133,6 +134,7 @@ int is_file(int tar_fd, char *path) {
     int ret = read(tar_fd,header,n);
     int readCount=1;
     while(ret!=0){
+        //printf("header->name %s\n", header->name);
         if(strcmp(header->name,path)==0) {
             if (header->typeflag == '0' || header->typeflag == '\0') { return readCount; }
             else { return 0; }
@@ -260,6 +262,7 @@ ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *
 
     int n = 512;
     tar_header_t *header =(tar_header_t *) malloc(n);
+
     char *path2=(char*) malloc(strlen(path)+1);
     strcpy(path2,path);
     int loc = is_symlink(tar_fd, path);
@@ -270,21 +273,25 @@ ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *
         lseek(tar_fd,0,SEEK_SET);
     }
 
-    int pos = is_file(tar_fd,path2);
+    int pos = is_file(tar_fd,path);
     if(!pos){ return -1;}
-    lseek(tar_fd,(loc-1)*n,SEEK_SET);
+    int err=lseek(tar_fd,(pos-1)*n,SEEK_SET);
+    //printf("err %d\n, errno = %d\n",err, errno);
     read(tar_fd,header,n);
-    int size_of_file = strtol(header->size,NULL,8);
-    if(size_of_file<offset ){return -2;}
+    int size_of_file =(int) strtol(header->size,NULL,8);
+    //printf("header->name ici %s \n", header->name);
+
+    if(size_of_file<offset ){return -2;}  // offset too big
     lseek(tar_fd,offset,SEEK_CUR);
 
-    int rest_of_file = size_of_file-offset;
-    int result;
+    int rest_of_file = size_of_file- offset;
+    //printf("offset %d, size_of_file %d, rest_of file %d, len %d \n",offset,size_of_file,rest_of_file,*len);
+    int result=0;
     if(*len<rest_of_file){result = rest_of_file-(*len);}
     else{
         result = 0;
         *len = rest_of_file;
     }
     read(tar_fd,dest,*len);
-    return result;
+    return (ssize_t) result;
 }

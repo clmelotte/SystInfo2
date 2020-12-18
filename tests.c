@@ -25,8 +25,10 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    int ret = check_archive(fd);
-    printf("check_archive returned ... %d\n", ret);
+    uint8_t *dest = (uint8_t *) malloc(512) ;
+    size_t len = 900;
+    int ret = read_file(fd, "tests.c",(size_t) 100,dest,&len);
+    printf("read_file returned ... %d\n and len = %d\n\n\n", ret,len);
 
 
     lseek(fd,0,SEEK_SET);
